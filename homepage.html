@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+    <title>Project</title>
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            transition: width 0.2s;
+            width: 250px;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar .nav-link {
+            text-align: left;
+        }
+
+        .profile-container {
+            text-align: center;
+            /* 确保内容居中 */
+            margin-top: 20px;
+            /* 增加上边距 */
+        }
+
+        .nav-profile-pic {
+            width: 40px;
+            /* 增加头像宽度 */
+            height: 40px;
+            /* 增加头像高度 */
+            border-radius: 50%;
+            /* 圆形 */
+            background-color: #e9ecef;
+        }
+
+        .profile-pic {
+            width: 70px;
+            /* 增加头像宽度 */
+            height: 70px;
+            /* 增加头像高度 */
+            border-radius: 50%;
+            /* 圆形 */
+            background-color: #e9ecef;
+        }
+
+        .toggle-btn {
+            border: none;
+            /* 去掉边框 */
+            position: absolute;
+            top: 10px;
+            /* 调整按钮的垂直位置 */
+            right: 20px;
+            /* 调整按钮的水平位置 */
+            transform: translate(50%, -50%);
+            /* 微调位置，确保不超出边界 */
+            display: flex;
+            /* 使用 flexbox 使内容居中 */
+            justify-content: center;
+            /* 水平居中 */
+            align-items: center;
+            /* 垂直居中 */
+
+        }
+
+        .toggle-btn i {
+            color: white;
+            font-size: 0.75 em;
+            /* 图标颜色 */
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-text {
+            margin-left: 10px;
+            /* 图标与文字之间的间距 */
+            transition: opacity 0.2s ease;
+            /* 过渡效果 */
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            /* 收起时隐藏文字 */
+            width: 0;
+            /* 防止占用空间 */
+            overflow: hidden;
+            /* 隐藏溢出内容 */
+        }
+
+        .profile-container {
+            transition: opacity 0.2s ease;
+            /* 过渡效果 */
+        }
+
+        .sidebar.collapsed .profile-name,
+        .sidebar.collapsed .profile-info {
+            opacity: 0;
+            /* 收起时隐藏名称和信息 */
+            height: 0;
+            /* 防止占用空间 */
+            overflow: hidden;
+            /* 隐藏溢出内容 */
+        }
+
+        .small-profile-pic {
+            width: 40px;
+            /* 小头像宽度 */
+            height: 40px;
+            /* 小头像高度 */
+        }
+
+        .container {
+            max-width: 100%;
+            /* 最大寬度設為100% */
+            overflow-x: auto;
+            /* 溢出時出現水平滾動條 */
+            padding: 15px;
+            /* 增加內邊距 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            /* 加入陰影以改善可讀性 */
+            background-color: #fff;
+            /* 背景顏色 */
+            border-radius: 5px;
+            /* 圓角 */
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-home"></i>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <div class="nav-profile-pic" data-bs-toggle="dropdown" aria-expanded="false"></div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i> <!-- 使用 Font Awesome 图标 -->
+            </button>
+
+            <!-- Profile Container -->
+            <div class="profile-container">
+                <div class="profile-pic mx-auto"></div>
+                <h5 class="profile-name">Amy Chen</h5>
+                <small class="profile-info">AJX Kaohsiung</small>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="nav flex-column">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-chart-line"></i> <!-- SMMBO 图标 -->
+                    <span class="nav-text">SMMBO</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <i class="fas fa-cogs"></i> <!-- CMMv2 图标 -->
+                    <span class="nav-text">CMMv2</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <i class="fas fa-users"></i> <!-- Affiliate 图标 -->
+                    <span class="nav-text">Affiliate</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="container">
+            <h2 class="mt-4">SMMBO</h2>
+            <table id="smmboTable" class="table mt-3">
+
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Sidebar Toggle Function -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const profilePic = document.querySelector('.profile-pic');
+
+            sidebar.classList.toggle('collapsed');
+
+            // 切换头像大小
+            if (sidebar.classList.contains('collapsed')) {
+                profilePic.classList.add('small-profile-pic');
+            } else {
+                profilePic.classList.remove('small-profile-pic');
+            }
+        }
+        const jsonData = [
+            {
+                "module": "userManagement",
+                "category": "administration",
+                "task": "createNewUser",
+                "type": "feature",
+                "assign": "johnDoe",
+                "status": "inProgress",
+                "startDate": "2024-10-01",
+                "endDate": "2024-10-05",
+                "actualDoneDate": null,
+                "remark": "waiting for approval"
+            },
+            {
+                "module": "inventory",
+                "category": "stockManagement",
+                "task": "updateInventoryLevels",
+                "type": "bugFix",
+                "assign": "janeSmith",
+                "status": "completed",
+                "startDate": "2024-09-20",
+                "endDate": "2024-09-25",
+                "actualDoneDate": "2024-09-24",
+                "remark": "all levels updated"
+            },
+            {
+                "module": "sales",
+                "category": "reporting",
+                "task": "generateMonthlySalesReport",
+                "type": "report",
+                "assign": "aliceJohnson",
+                "status": "pending",
+                "startDate": "2024-10-15",
+                "endDate": "2024-10-20",
+                "actualDoneDate": null,
+                "remark": "pending data from finance"
+            },
+            {
+                "module": "customerSupport",
+                "category": "service",
+                "task": "respondToCustomerInquiries",
+                "type": "task",
+                "assign": "bobBrown",
+                "status": "inProgress",
+                "startDate": "2024-10-02",
+                "endDate": "2024-10-10",
+                "actualDoneDate": null,
+                "remark": "high volume of inquiries"
+            },
+            {
+                "module": "marketing",
+                "category": "campaign",
+                "task": "launchEmailCampaign",
+                "type": "feature",
+                "assign": "charlieGreen",
+                "status": "notStarted",
+                "startDate": "2024-10-12",
+                "endDate": "2024-10-15",
+                "actualDoneDate": null,
+                "remark": "scheduled for next week"
+            }
+        ];
+        // 獲取所有選項的唯一值
+        const uniqueModules = Array.from(new Set(jsonData.map(item => item.module)));
+        const uniqueCategories = Array.from(new Set(jsonData.map(item => item.category)));
+        const uniqueTypes = Array.from(new Set(jsonData.map(item => item.type)));
+        const uniqueAssigns = Array.from(new Set(jsonData.map(item => item.assign)));
+        const uniqueStatuses = Array.from(new Set(jsonData.map(item => item.status)));
+        $('#smmboTable').DataTable({
+            paging: false, // 確保啟用分頁
+            lengthChange: false, // 禁用 "Show entries"
+            searching: false, // 禁用搜索框
+            info: false, // 禁用 "Showing X to Y of Z entries"
+            data: jsonData,
+            columnDefs: [
+                {
+                    targets: 0,
+                    title: 'Module',
+                    data: 'module',
+                    render: function (data) {
+                        const options = uniqueModules
+                            .filter(module => module !== data)
+                            .map(module => `<option value="${module}">${module}</option>`).join('');
+                        return `<select>
+                                <option value="${data}">${data}</option>
+                                ${options}
+                             </select>`;
+                    }
+                },
+                {
+                    targets: 1,
+                    title: 'Category',
+                    data: 'category',
+                    render: function (data) {
+                        const options = uniqueCategories
+                            .filter(category => category !== data)
+                            .map(category => `<option value="${category}">${category}</option>`).join('');
+                        return `<select>
+                                <option value="${data}">${data}</option>
+                                ${options}
+                             </select>`;
+                    }
+                },
+                {
+                    targets: 2,
+                    title: 'Task',
+                    data: 'task',
+                    render: function (data) {
+                        return `<input type="text" value="${data}" placeholder="輸入任務">`;
+                    }
+                },
+                {
+                    targets: 3,
+                    title: 'Type',
+                    data: 'type',
+                    render: function (data) {
+                        const options = uniqueTypes
+                            .filter(type => type !== data)
+                            .map(type => `<option value="${type}">${type}</option>`).join('');
+                        return `<select>
+                                <option value="${data}">${data}</option>
+                                ${options}
+                             </select>`;
+                    }
+                },
+                {
+                    targets: 4,
+                    title: 'Assign',
+                    data: 'assign',
+                    render: function (data) {
+                        const options = uniqueAssigns
+                            .filter(assign => assign !== data)
+                            .map(assign => `<option value="${assign}">${assign}</option>`).join('');
+                        return `<select>
+                                <option value="${data}">${data}</option>
+                                ${options}
+                             </select>`;
+                    }
+                },
+                {
+                    targets: 5,
+                    title: 'Status',
+                    data: 'status',
+                    render: function (data) {
+                        const options = uniqueStatuses
+                            .filter(status => status !== data)
+                            .map(status => `<option value="${status}">${status}</option>`).join('');
+                        return `<select>
+                                <option value="${data}">${data}</option>
+                                ${options}
+                             </select>`;
+                    }
+                },
+                {
+                    targets: 6,
+                    title: 'Est. Start Date',
+                    data: 'startDate',
+                    render: function (data) {
+                        return `<input type="date" value="${data}">`;
+                    }
+                },
+                {
+                    targets: 7,
+                    title: 'Est. End Date',
+                    data: 'endDate',
+                    render: function (data) {
+                        return `<input type="date" value="${data}">`;
+                    }
+                },
+                {
+                    targets: 8,
+                    title: 'Actual Done Date',
+                    data: 'actualDoneDate',
+                    render: function (data) {
+                        return `<input type="date" value="${data ? data : ''}">`;
+                    }
+                },
+                {
+                    targets: 9,
+                    title: 'Remark',
+                    data: 'remark',
+                    render: function (data) {
+                        return `<input type="text" value="${data}" placeholder="備註">`;
+                    }
+                },
+                {
+                    targets: 10,
+                    title: 'Action',
+                    data: '',
+                    render: function (data) {
+                        return `<button class="btn update-btn" onclick="updateRow()">
+                                    <i class="fas fa-save"></i> 
+                                </button>`;
+                    }
+                }
+            ]
+        });
+    </script>
+
+</body>
+
+
+</html>
