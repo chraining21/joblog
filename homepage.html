@@ -14,7 +14,7 @@
     <style>
         .sidebar {
             min-height: 100vh;
-            background-color: #f8f9fa;
+            background-color: #666A86;
             transition: width 0.2s;
             width: 250px;
             position: relative;
@@ -71,18 +71,29 @@
             /* 水平居中 */
             align-items: center;
             /* 垂直居中 */
-
+            background-color: transparent;
+            padding-top: 0.2rem;
         }
 
         .toggle-btn i {
-            color: white;
+            color: rgb(33, 32, 32);
             font-size: 0.75 em;
             /* 图标颜色 */
+        }
+
+        .navbar {
+            background-color: #788AA3;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
+            color: rgb(33, 32, 32);
+        }
+
+        .nav-link:hover {
+            color: darkgray;
+            /* 設置懸停時的顏色 */
         }
 
         .nav-text {
@@ -137,12 +148,49 @@
             border-radius: 5px;
             /* 圓角 */
         }
+
+        .accordion-header {
+            border: none;
+
+        }
+
+        .accordion-button {
+            color: rgb(33, 32, 32);
+            padding: 0.5rem 1rem;
+            border: none;
+            padding-top: 0.5rem;
+        }
+
+        .accordion-button:hover {
+            color: darkgray;
+        }
+
+        .accordion-button:not(.collapsed) {
+            border: none;
+        }
+
+        .accordion-body {
+            padding-left: 1rem;
+            border: none;
+        }
+
+        .accordion-item {
+            border: none;
+        }
+
+        input.form-control,
+        select.form-select {
+            width: auto;
+            /* 允許自動寬度 */
+            min-width: 100px;
+            /* 設置最小寬度以防止過小 */
+        }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-home"></i>
@@ -154,7 +202,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <div class="nav-profile-pic" data-bs-toggle="dropdown" aria-expanded="false"></div>
+                        <div class="nav-profile-pic" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="meerkat.png" alt="Profile Picture" class="img-fluid rounded-circle"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li><a class="dropdown-item" href="#">Settings</a></li>
@@ -177,32 +228,45 @@
 
             <!-- Profile Container -->
             <div class="profile-container">
-                <div class="profile-pic mx-auto"></div>
+                <div class="profile-pic mx-auto">
+                    <img src="meerkat.png" alt="Profile Picture" class="img-fluid rounded-circle"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
                 <h5 class="profile-name">Amy Chen</h5>
                 <small class="profile-info">AJX Kaohsiung</small>
             </div>
 
             <!-- Navigation Links -->
             <div class="nav flex-column">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-chart-line"></i> <!-- SMMBO 图标 -->
-                    <span class="nav-text">SMMBO</span>
-                </a>
-                <a class="nav-link" href="#">
-                    <i class="fas fa-cogs"></i> <!-- CMMv2 图标 -->
-                    <span class="nav-text">CMMv2</span>
-                </a>
-                <a class="nav-link" href="#">
-                    <i class="fas fa-users"></i> <!-- Affiliate 图标 -->
-                    <span class="nav-text">Affiliate</span>
-                </a>
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    <i class="fas fa-folder-open" style="margin-right: 5px;"></i>
+                    <span class="nav-text">Project</span>
+                </button>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                    data-bs-parent="#projectAccordion">
+                    <div class="accordion-body">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-chart-line"></i> <!-- SMMBO 图标 -->
+                            <span class="nav-text">SMMBO</span>
+                        </a>
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-cogs"></i> <!-- CMMv2 图标 -->
+                            <span class="nav-text">CMMv2</span>
+                        </a>
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-users"></i> <!-- Affiliate 图标 -->
+                            <span class="nav-text">Affiliate</span>
+                        </a>
+                    </div>
+                </div>
             </div>
 
         </div>
 
         <div class="container">
             <h2 class="mt-4">SMMBO</h2>
-            <table id="smmboTable" class="table mt-3">
+            <table id="smmboTable" class="table table-nowrap mt-3">
 
             </table>
         </div>
@@ -301,6 +365,9 @@
             searching: false, // 禁用搜索框
             info: false, // 禁用 "Showing X to Y of Z entries"
             data: jsonData,
+            lengthChange: true,
+            scrollX: true,
+            autoWidth: true,
             columnDefs: [
                 {
                     targets: 0,
@@ -310,10 +377,10 @@
                         const options = uniqueModules
                             .filter(module => module !== data)
                             .map(module => `<option value="${module}">${module}</option>`).join('');
-                        return `<select>
-                                <option value="${data}">${data}</option>
-                                ${options}
-                             </select>`;
+                        return `<select class="form-select">
+                        <option value="${data}">${data}</option>
+                        ${options}
+                    </select>`;
                     }
                 },
                 {
@@ -324,10 +391,10 @@
                         const options = uniqueCategories
                             .filter(category => category !== data)
                             .map(category => `<option value="${category}">${category}</option>`).join('');
-                        return `<select>
-                                <option value="${data}">${data}</option>
-                                ${options}
-                             </select>`;
+                        return `<select class="form-select">
+                        <option value="${data}">${data}</option>
+                        ${options}
+                    </select>`;
                     }
                 },
                 {
@@ -335,7 +402,7 @@
                     title: 'Task',
                     data: 'task',
                     render: function (data) {
-                        return `<input type="text" value="${data}" placeholder="輸入任務">`;
+                        return `<input type="text" value="${data}" placeholder="輸入任務" class="form-control">`;
                     }
                 },
                 {
@@ -346,10 +413,10 @@
                         const options = uniqueTypes
                             .filter(type => type !== data)
                             .map(type => `<option value="${type}">${type}</option>`).join('');
-                        return `<select>
-                                <option value="${data}">${data}</option>
-                                ${options}
-                             </select>`;
+                        return `<select class="form-select">
+                        <option value="${data}">${data}</option>
+                        ${options}
+                    </select>`;
                     }
                 },
                 {
@@ -360,10 +427,10 @@
                         const options = uniqueAssigns
                             .filter(assign => assign !== data)
                             .map(assign => `<option value="${assign}">${assign}</option>`).join('');
-                        return `<select>
-                                <option value="${data}">${data}</option>
-                                ${options}
-                             </select>`;
+                        return `<select class="form-select">
+                        <option value="${data}">${data}</option>
+                        ${options}
+                    </select>`;
                     }
                 },
                 {
@@ -374,10 +441,10 @@
                         const options = uniqueStatuses
                             .filter(status => status !== data)
                             .map(status => `<option value="${status}">${status}</option>`).join('');
-                        return `<select>
-                                <option value="${data}">${data}</option>
-                                ${options}
-                             </select>`;
+                        return `<select class="form-select">
+                        <option value="${data}">${data}</option>
+                        ${options}
+                    </select>`;
                     }
                 },
                 {
@@ -385,7 +452,7 @@
                     title: 'Est. Start Date',
                     data: 'startDate',
                     render: function (data) {
-                        return `<input type="date" value="${data}">`;
+                        return `<input type="date" value="${data}" class="form-control">`;
                     }
                 },
                 {
@@ -393,7 +460,7 @@
                     title: 'Est. End Date',
                     data: 'endDate',
                     render: function (data) {
-                        return `<input type="date" value="${data}">`;
+                        return `<input type="date" value="${data}" class="form-control">`;
                     }
                 },
                 {
@@ -401,7 +468,7 @@
                     title: 'Actual Done Date',
                     data: 'actualDoneDate',
                     render: function (data) {
-                        return `<input type="date" value="${data ? data : ''}">`;
+                        return `<input type="date" value="${data ? data : ''}" class="form-control">`;
                     }
                 },
                 {
@@ -409,7 +476,7 @@
                     title: 'Remark',
                     data: 'remark',
                     render: function (data) {
-                        return `<input type="text" value="${data}" placeholder="備註">`;
+                        return `<input type="text" value="${data}" placeholder="備註" class="form-control">`;
                     }
                 },
                 {
@@ -418,11 +485,12 @@
                     data: '',
                     render: function (data) {
                         return `<button class="btn update-btn" onclick="updateRow()">
-                                    <i class="fas fa-save"></i> 
-                                </button>`;
+                        <i class="fas fa-save"></i>
+                    </button>`;
                     }
                 }
             ]
+
         });
     </script>
 
