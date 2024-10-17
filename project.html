@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+
+    <title>Project</title>
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #666A86;
+            transition: width 0.2s;
+            width: 250px;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .sidebar .nav-link {
+            text-align: left;
+        }
+
+        .profile-container {
+            text-align: center;
+            /* 确保内容居中 */
+            margin-top: 20px;
+            /* 增加上边距 */
+        }
+
+        .nav-profile-pic {
+            width: 40px;
+            /* 增加头像宽度 */
+            height: 40px;
+            /* 增加头像高度 */
+            border-radius: 50%;
+            /* 圆形 */
+            background-color: #e9ecef;
+        }
+
+        .profile-pic {
+            width: 70px;
+            /* 增加头像宽度 */
+            height: 70px;
+            /* 增加头像高度 */
+            border-radius: 50%;
+            /* 圆形 */
+            background-color: #e9ecef;
+        }
+
+        .toggle-btn {
+            border: none;
+            /* 去掉边框 */
+            position: absolute;
+            top: 10px;
+            /* 调整按钮的垂直位置 */
+            right: 20px;
+            /* 调整按钮的水平位置 */
+            transform: translate(50%, -50%);
+            /* 微调位置，确保不超出边界 */
+            display: flex;
+            /* 使用 flexbox 使内容居中 */
+            justify-content: center;
+            /* 水平居中 */
+            align-items: center;
+            /* 垂直居中 */
+            background-color: transparent;
+            padding-top: 0.2rem;
+        }
+
+        .toggle-btn i {
+            color: rgb(33, 32, 32);
+            font-size: 0.75 em;
+            /* 图标颜色 */
+        }
+
+        .navbar {
+            background-color: #788AA3;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: rgb(33, 32, 32);
+        }
+
+        .nav-link:hover {
+            color: darkgray;
+            /* 設置懸停時的顏色 */
+        }
+
+        .nav-text {
+            margin-left: 10px;
+            /* 图标与文字之间的间距 */
+            transition: opacity 0.2s ease;
+            /* 过渡效果 */
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            /* 收起时隐藏文字 */
+            width: 0;
+            /* 防止占用空间 */
+            overflow: hidden;
+            /* 隐藏溢出内容 */
+        }
+
+        .profile-container {
+            transition: opacity 0.2s ease;
+            /* 过渡效果 */
+        }
+
+        .sidebar.collapsed .profile-name,
+        .sidebar.collapsed .profile-info {
+            opacity: 0;
+            /* 收起时隐藏名称和信息 */
+            height: 0;
+            /* 防止占用空间 */
+            overflow: hidden;
+            /* 隐藏溢出内容 */
+        }
+
+        .small-profile-pic {
+            width: 40px;
+            /* 小头像宽度 */
+            height: 40px;
+            /* 小头像高度 */
+        }
+
+        .container {
+            max-width: 100%;
+            /* 最大寬度設為100% */
+            overflow-x: auto;
+            /* 溢出時出現水平滾動條 */
+            padding: 15px;
+            /* 增加內邊距 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            /* 加入陰影以改善可讀性 */
+            background-color: #fff;
+            /* 背景顏色 */
+            border-radius: 5px;
+            /* 圓角 */
+        }
+
+        .accordion-header {
+            border: none;
+
+        }
+
+        .accordion-button {
+            color: rgb(33, 32, 32);
+            padding: 0.5rem 1rem;
+            border: none;
+            padding-top: 0.5rem;
+        }
+
+        .accordion-button:hover {
+            color: darkgray;
+        }
+
+        .accordion-button:not(.collapsed) {
+            border: none;
+        }
+
+        .accordion-body {
+            padding-left: 1rem;
+            border: none;
+        }
+
+        .accordion-item {
+            border: none;
+        }
+
+        input.form-control,
+        select.form-select {
+            width: auto;
+            /* 允許自動寬度 */
+            min-width: 100px;
+            /* 設置最小寬度以防止過小 */
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="homepage.html">
+                <i class="fas fa-home"></i>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <div class="nav-profile-pic" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="meerkat.png" alt="Profile Picture" class="img-fluid rounded-circle"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="index.html">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <div class="sidebar" id="sidebar">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i> <!-- 使用 Font Awesome 图标 -->
+            </button>
+
+            <!-- Profile Container -->
+            <div class="profile-container">
+                <div class="profile-pic mx-auto">
+                    <img src="meerkat.png" alt="Profile Picture" class="img-fluid rounded-circle"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h5 class="profile-name">Amy Chen</h5>
+                <small class="profile-info">AJX Kaohsiung</small>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="nav flex-column">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    <i class="fas fa-folder-open" style="margin-right: 5px;"></i>
+                    <span class="nav-text">Project</span>
+                </button>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                    data-bs-parent="#projectAccordion">
+                    <div class="accordion-body">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-chart-line"></i> <!-- SMMBO 图标 -->
+                            <span class="nav-text">SMMBO</span>
+                        </a>
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-cogs"></i> <!-- CMMv2 图标 -->
+                            <span class="nav-text">CMMv2</span>
+                        </a>
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-users"></i> <!-- Affiliate 图标 -->
+                            <span class="nav-text">Affiliate</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="container">
+            <h2 class="mt-4">SMMBO</h2>
+            <table id="smmboTable" class="table table-nowrap mt-3">
+
+            </table>
+        </div>
+
+        <!-- 上传照片模态框 -->
+        <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">Upload Images</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="uploadForm">
+                            <div class="mb-3">
+                                <label for="imageUpload" class="form-label">Choose Images</label>
+                                <input type="file" class="form-control" id="imageUpload" accept="image/*" multiple>
+                            </div>
+                            <div id="imagePreviewContainer" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner"></div>
+                                <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#imagePreviewContainer" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button"
+                                    data-bs-target="#imagePreviewContainer" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="uploadButton">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 查看照片模态框 -->
+        <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewModalLabel">Remark Images</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner"></div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
+                                data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
+                                data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Sidebar Toggle Function -->
+    <script>
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const profilePic = document.querySelector('.profile-pic');
+
+            sidebar.classList.toggle('collapsed');
+
+            // 切换头像大小
+            if (sidebar.classList.contains('collapsed')) {
+                profilePic.classList.add('small-profile-pic');
+            } else {
+                profilePic.classList.remove('small-profile-pic');
+            }
+        }
+        const jsonData = [
+            {
+                "module": "userManagement",
+                "category": "administration",
+                "task": "createNewUser",
+                "type": "feature",
+                "assign": "johnDoe",
+                "status": "inProgress",
+                "startDate": "2024-10-01",
+                "endDate": "2024-10-05",
+                "actualDoneDate": null,
+                "remark": "waiting for approval",
+                "priority": "high"
+            },
+            {
+                "module": "inventory",
+                "category": "stockManagement",
+                "task": "updateInventoryLevels",
+                "type": "bugFix",
+                "assign": "janeSmith",
+                "status": "completed",
+                "startDate": "2024-09-20",
+                "endDate": "2024-09-25",
+                "actualDoneDate": "2024-09-24",
+                "remark": "all levels updated",
+                "priority": "high"
+            },
+            {
+                "module": "sales",
+                "category": "reporting",
+                "task": "generateMonthlySalesReport",
+                "type": "report",
+                "assign": "aliceJohnson",
+                "status": "pending",
+                "startDate": "2024-10-15",
+                "endDate": "2024-10-20",
+                "actualDoneDate": null,
+                "remark": "pending data from finance",
+                "priority": "medium"
+            },
+            {
+                "module": "customerSupport",
+                "category": "service",
+                "task": "respondToCustomerInquiries",
+                "type": "task",
+                "assign": "bobBrown",
+                "status": "inProgress",
+                "startDate": "2024-10-02",
+                "endDate": "2024-10-10",
+                "actualDoneDate": null,
+                "remark": "high volume of inquiries",
+                "priority": "low"
+            },
+            {
+                "module": "marketing",
+                "category": "campaign",
+                "task": "launchEmailCampaign",
+                "type": "feature",
+                "assign": "charlieGreen",
+                "status": "notStarted",
+                "startDate": "2024-10-12",
+                "endDate": "2024-10-15",
+                "actualDoneDate": null,
+                "remark": "scheduled for next week",
+                "priority": "low"
+            }
+        ];
+        // 獲取所有選項的唯一值
+        const uniqueModules = Array.from(new Set(jsonData.map(item => item.module)));
+        const uniqueCategories = Array.from(new Set(jsonData.map(item => item.category)));
+        const uniqueTypes = Array.from(new Set(jsonData.map(item => item.type)));
+        const uniqueAssigns = Array.from(new Set(jsonData.map(item => item.assign)));
+        const uniqueStatuses = Array.from(new Set(jsonData.map(item => item.status)));
+        const morandiColors = [
+            "#E6B5B0", // 粉紅色
+            "#B7C9B2", // 淡綠色
+            "#A8B6D2", // 淡藍色
+            "#D1C6C2", // 淡灰色
+            "#C8B6D8", // 淡紫色
+            "#B9B2A7", // 淡褐色
+            "#C7D1D6", // 淡青色
+            "#E2D7D0"  // 淡米色
+        ];
+
+        function getRandomColor(colors) {
+            const randomIndex = Math.floor(Math.random() * colors.length);
+            return colors.splice(randomIndex, 1)[0]; // 移除並返回隨機顏色
+        }
+
+        const colorMap = {};
+        const availableColors = [...morandiColors]; // 複製顏色陣列以保持原始不變
+
+        uniqueModules.forEach(module => {
+            colorMap[module] = getRandomColor(availableColors);
+        });
+
+        const availableColorsForCategories = [...morandiColors];
+        uniqueCategories.forEach(category => {
+            colorMap[category] = getRandomColor(availableColorsForCategories);
+        });
+
+        const availableColorsForTypes = [...morandiColors];
+        uniqueTypes.forEach(type => {
+            colorMap[type] = getRandomColor(availableColorsForTypes);
+        });
+
+        const availableColorsForAssigns = [...morandiColors];
+        uniqueAssigns.forEach(assign => {
+            colorMap[assign] = getRandomColor(availableColorsForAssigns);
+        });
+
+        const availableColorsForStatuses = [...morandiColors];
+        uniqueStatuses.forEach(status => {
+            colorMap[status] = getRandomColor(availableColorsForStatuses);
+        });
+
+        $('#smmboTable').DataTable({
+            paging: false, // 確保啟用分頁
+            lengthChange: false, // 禁用 "Show entries"
+            searching: false, // 禁用搜索框
+            info: false, // 禁用 "Showing X to Y of Z entries"
+            data: jsonData,
+            lengthChange: true,
+            scrollX: true,
+            autoWidth: true,
+            columnDefs: [
+                {
+                    targets: 0,
+                    title: 'Module',
+                    data: 'module',
+                    render: function (data) {
+                        const options = uniqueModules
+                            .filter(module => module !== data)
+                            .map(module => `<option value="${module}" style="background-color: ${colorMap[module]};">${module}</option>`).join('');
+
+                        const selectElement = `<select class="form-select moduleSelect" style="background-color:${colorMap[data]};">
+                                    <option value="${data}" style="background-color: ${colorMap[data]};">${data}</option>
+                                    ${options}
+                                </select>`;
+
+                        $(document).on('change', '.moduleSelect', function () {
+                            const selectedModule = $(this).val();
+                            const selectedColor = colorMap[selectedModule];
+                            $(this).css("background-color", selectedColor);
+                        });
+
+                        return selectElement;
+
+                    }
+                },
+                {
+                    targets: 1,
+                    title: 'Category',
+                    data: 'category',
+                    render: function (data) {
+                        const options = uniqueCategories
+                            .filter(category => category !== data)
+                            .map(category => `<option value="${category}" style="background-color: ${colorMap[category]};">${category}</option>`).join('');
+
+                        const selectElement = `<select class="form-select categorySelect" style="background-color:${colorMap[data]};">
+                                    <option value="${data}" style="background-color: ${colorMap[data]};">${data}</option>
+                                    ${options}
+                                </select>`;
+
+                        $(document).on('change', '.categorySelect', function () {
+                            const selectedCategory = $(this).val();
+                            const selectedColor = colorMap[selectedCategory];
+                            $(this).css("background-color", selectedColor);
+                        });
+
+                        return selectElement;
+                    }
+                },
+                {
+                    targets: 2,
+                    title: 'Task',
+                    data: 'task',
+                    render: function (data) {
+                        return `<input type="text" value="${data}" placeholder="輸入任務" class="form-control">`;
+                    }
+                },
+                {
+                    targets: 3,
+                    title: 'Type',
+                    data: 'type',
+                    render: function (data) {
+                        const options = uniqueTypes
+                            .filter(type => type !== data)
+                            .map(type => `<option value="${type}" style="background-color: ${colorMap[type]}; ">${type}</option>`).join('');
+
+                        const selectElement = `<select class="form-select typeSelect" style="background-color:${colorMap[data]};">
+                                <option value="${data}" style="background-color: ${colorMap[data]};">${data}</option>
+                                ${options}
+                            </select>`;
+
+                        $(document).on('change', '.typeSelect', function () {
+                            const selectedType = $(this).val();
+                            const selectedColor = colorMap[selectedType];
+                            $(this).css("background-color", selectedColor);
+                        });
+
+                        return selectElement;
+                    }
+                },
+                {
+                    targets: 4,
+                    title: 'Assign',
+                    data: 'assign',
+                    render: function (data) {
+                        const options = uniqueAssigns
+                            .filter(type => type !== data)
+                            .map(type => `<option value="${type}" style="background-color: ${colorMap[type]}; ">${type}</option>`).join('');
+
+                        const selectElement = `<select class="form-select assignSelect" style="background-color:${colorMap[data]};">
+                                <option value="${data}" style="background-color: ${colorMap[data]};">${data}</option>
+                                ${options}
+                            </select>`;
+
+                        $(document).on('change', '.assignSelect', function () {
+                            const selectedAssign = $(this).val();
+                            const selectedColor = colorMap[selectedAssign];
+                            $(this).css("background-color", selectedColor);
+                        });
+
+                        return selectElement;
+                    }
+                },
+                {
+                    targets: 5,
+                    title: 'Status',
+                    data: 'status',
+                    render: function (data) {
+                        const options = uniqueStatuses
+                            .filter(status => status !== data)
+                            .map(status => `<option value="${status}" style="background-color: ${colorMap[status]};">${status}</option>`).join('');
+
+                        const selectElement = `<select class="form-select statusSelect" style="background-color:${colorMap[data]};">
+                                <option value="${data}" style="background-color: ${colorMap[data]};">${data}</option>
+                                ${options}
+                            </select>`;
+                        $(document).on('change', '.statusSelect', function () {
+                            const selectedStatus = $(this).val();
+                            const selectedColor = colorMap[selectedStatus];
+                            $(this).css("background-color", selectedColor);
+                        });
+
+                        return selectElement;
+                    }
+                },
+                {
+                    targets: 6,
+                    title: 'Status',
+                    data: 'status',
+                    render: function (data) {
+                        const options = uniqueStatuses
+                            .filter(status => status !== data)
+                            .map(status => `<option value="${status}" style="background-color: ${colorMap[status]};">${status}</option>`).join('');
+
+                        const selectElement = `<select class="form-select statusSelect" style="background-color:${colorMap[data]};">
+                                <option value="${data}" style="background-color: ${colorMap[data]};">${data}</option>
+                                ${options}
+                            </select>`;
+                        $(document).on('change', '.statusSelect', function () {
+                            const selectedStatus = $(this).val();
+                            const selectedColor = colorMap[selectedStatus];
+                            $(this).css("background-color", selectedColor);
+                        });
+
+                        return selectElement;
+                    }
+                },
+                {
+                    targets: 7,
+                    title: 'Est. Start Date',
+                    data: 'startDate',
+                    render: function (data) {
+                        return `<input type="date" value="${data}" class="form-control">`;
+                    }
+                },
+                {
+                    targets: 8,
+                    title: 'Est. End Date',
+                    data: 'endDate',
+                    render: function (data) {
+                        return `<input type="date" value="${data}" class="form-control">`;
+                    }
+                },
+                {
+                    targets: 9,
+                    title: 'Actual Done Date',
+                    data: 'actualDoneDate',
+                    render: function (data) {
+                        return `<input type="date" value="${data ? data : ''}" class="form-control">`;
+                    }
+                },
+                {
+                    targets: 10,
+                    title: 'Remark',
+                    data: 'remark',
+                    render: function (data) {
+                        return `<input type="text" value="${data}" placeholder="備註" class="form-control">`;
+                    }
+                },
+                {
+                    targets: 11,
+                    title: 'View Attachment',
+                    data: '',
+                    render: function (data) {
+                        return `
+                            <div class="text-center">
+                            <button class="btn btn-dark" onclick="openCarouselModal()">
+                                    <i class="fas fa-eye"></i> 
+                                </button>
+                            </div>
+                        `;
+                    }
+                },
+                {
+                    targets: 12,
+                    title: 'Action',
+                    data: '',
+                    render: function (data) {
+                        return `
+                            <div class="btn-group" role="group" aria-label="Button group">
+                                <button class="btn btn-primary" onclick="updateRow()">
+                                    <i class="fas fa-save"></i> 
+                                </button>
+                                <button class="btn btn-success" onclick="uploadRow()">
+                                    <i class="fas fa-upload"></i> 
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            ]
+
+        });
+        function updateRow() {
+
+            Swal.fire({
+                title: 'Update Success!',
+                text: 'Update Success!',
+                icon: 'success',
+                timer: 3000,
+                showConfirmButton: false,
+                position: 'top-end', // 設置位置為右上角
+                toast: true, // 以 Toast 形式顯示
+                timerProgressBar: true, // 顯示進度條
+            });
+        }
+
+        function uploadRow() {
+            $('#uploadModal').modal('show');
+
+        }
+        $("#imageUpload").change(function () {
+            const files = this.files; // 获取所有选择的文件
+            const carouselInner = $("#imagePreviewContainer .carousel-inner");
+            carouselInner.empty(); // 清空之前的预览
+
+            // 遍历每个文件并创建预览
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // 创建一个新的 div 元素用于显示预览
+                    const isActive = i === 0 ? 'active' : ''; // 只有第一个元素添加 active 类
+                    const itemDiv = $(`
+                    <div class='carousel-item ${isActive}'>
+                        <img src='${e.target.result}' alt='preview' style='width:100%; height:auto;'>
+                        <button type='button' class='btn btn-danger remove-btn' style='position: absolute; top: 10px; right: 10px; z-index: 10;'>Remove</button>
+                    </div>
+                `);
+                    carouselInner.append(itemDiv); // 将 img 添加到 carousel-inner 中
+
+                    // 为删除按钮绑定事件
+                    itemDiv.find('.remove-btn').click(function () {
+                        $(this).parent().remove(); // 移除包含该按钮的 carousel-item
+                        // 更新 active 类，确保至少有一个项目处于活动状态
+                        updateCarouselItems();
+                    });
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 更新 Carousel 项目状态
+        function updateCarouselItems() {
+            const items = $("#imagePreviewContainer .carousel-item");
+
+            items.each(function (index) {
+                $(this).removeClass('active'); // 移除所有项的 active 类
+                if (index === 0) {
+                    $(this).addClass('active'); // 让第一个项成为活动项
+                }
+            });
+        }
+        $("#uploadButton").click(function () {
+            $('#uploadModal').modal('hide');
+            Swal.fire({
+                title: 'Upload Success!',
+                text: 'Upload Success!',
+                icon: 'success',
+                timer: 3000,
+                showConfirmButton: false,
+                position: 'top-end', // 設置位置為右上角
+                toast: true, // 以 Toast 形式顯示
+                timerProgressBar: true, // 顯示進度條
+            });
+        });
+
+        const images = [
+            'https://i.pinimg.com/enabled_hi/564x/2a/6b/ca/2a6bca6dc5ff59e45946ee552a7da7b9.jpg',
+            'https://i.pinimg.com/564x/7f/8d/5e/7f8d5eb2dd8bc8d5d63d315cc8d7534c.jpg',
+            'https://i.pinimg.com/564x/9e/b0/57/9eb057471de01c011de242ab0485d098.jpg'
+        ];
+
+        // 打开模态框并填充图片
+        function openCarouselModal() {
+            $('#viewModal').modal('show');
+            const carouselInner = $('#imageCarousel .carousel-inner');
+            carouselInner.empty(); // 清空之前的预览
+
+            // 遍历每个图片并创建预览
+            images.forEach((src, index) => {
+                const isActive = index === 0 ? 'active' : ''; // 只有第一个元素添加 active 类
+                const itemDiv = $(`
+                <div class='carousel-item ${isActive}'>
+                    <img src='${src}' alt='Image ${index + 1}' style='width:100%; height:auto;'>
+                </div>
+            `);
+                carouselInner.append(itemDiv); // 将 img 添加到 carousel-inner 中
+            });
+        }
+    </script>
+
+
+</body>
+
+
+</html>
